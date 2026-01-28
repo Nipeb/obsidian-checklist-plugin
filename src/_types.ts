@@ -1,13 +1,15 @@
-import type {CachedMetadata, TagCache, TFile} from 'obsidian'
+import type { CachedMetadata, TagCache, TFile } from 'obsidian'
 
 export type TodoItem = {
   checked: boolean
+  status?: string
   filePath: string
   fileName: string
   fileLabel: string
   fileCreatedTs: number
   mainTag?: string
   subTag?: string
+  subHeading?: string
   line: number
   spacesIndented: number
   fileInfo: FileInfo
@@ -36,7 +38,22 @@ export type TagGroup = BaseGroup & {
   subTags?: string
 }
 
-export type TodoGroup = PageGroup | TagGroup
+export type HeadingGroup = BaseGroup & {
+  type: 'heading'
+  heading: string
+}
+
+export type FolderGroup = BaseGroup & {
+  type: 'folder'
+  folderName: string
+}
+
+export type PropertyGroup = BaseGroup & {
+  type: 'property'
+  propertyValue: string
+}
+
+export type TodoGroup = PageGroup | TagGroup | HeadingGroup | FolderGroup | PropertyGroup
 
 export type FileInfo = {
   content: string
@@ -47,14 +64,14 @@ export type FileInfo = {
   validTags: TagCache[]
 }
 
-export type TagMeta = {main: string; sub: string}
-export type LinkMeta = {filePath: string; linkName: string}
+export type TagMeta = { main: string; sub: string }
+export type LinkMeta = { filePath: string; linkName: string }
 
-export type GroupByType = 'page' | 'tag'
+export type GroupByType = 'page' | 'tag' | 'heading' | 'folder' | 'property' | 'none'
 export type SortDirection = 'new->old' | 'old->new' | 'a->z' | 'z->a'
-export type LookAndFeel = 'compact' | 'classic'
+export type LookAndFeel = 'compact' | 'classic' | 'minimal' | 'native'
 
-export type Icon = 'chevron' | 'settings'
+export type Icon = 'chevron' | 'settings' | 'eye-off'
 
 export type KeysOfType<T, V> = {
   [K in keyof T]: T[K] extends V ? K : never

@@ -1,7 +1,7 @@
-import {Plugin} from 'obsidian'
+import { Plugin } from 'obsidian'
 
-import {TODO_VIEW_TYPE} from './constants'
-import {DEFAULT_SETTINGS, TodoSettings, TodoSettingTab} from './settings'
+import { TODO_VIEW_TYPE } from './constants'
+import { DEFAULT_SETTINGS, TodoSettings, TodoSettingTab } from './settings'
 import TodoListView from './view'
 
 export default class TodoPlugin extends Plugin {
@@ -75,7 +75,7 @@ export default class TodoPlugin extends Plugin {
 
   async loadSettings() {
     const loadedData = await this.loadData()
-    this.settings = {...DEFAULT_SETTINGS, ...loadedData}
+    this.settings = { ...DEFAULT_SETTINGS, ...loadedData }
   }
 
   async updateSettings(updates: Partial<TodoSettings>) {

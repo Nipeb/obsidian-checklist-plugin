@@ -1,8 +1,8 @@
-import {CachedMetadata, parseFrontMatterTags, TFile, Vault} from 'obsidian'
+import { CachedMetadata, parseFrontMatterTags, TFile, Vault } from 'obsidian'
 
-import {LOCAL_SORT_OPT} from '../constants'
+import { LOCAL_SORT_OPT } from '../constants'
 
-import type {SortDirection, TagMeta, LinkMeta, KeysOfType} from 'src/_types'
+import type { SortDirection, TagMeta, LinkMeta, KeysOfType } from 'src/_types'
 export const isMacOS = () => window.navigator.userAgent.includes('Macintosh')
 export const classifyString = (str: string) => {
   const sanitzedGroupName = (str ?? '').replace(/[^A-Za-z0-9]/g, '')
@@ -24,9 +24,9 @@ export const removeTagFromText = (text: string, tag: string) => {
 
 export const getTagMeta = (tag: string): TagMeta => {
   const tagMatch = /^\#([^\/]+)\/?(.*)?$/.exec(tag)
-  if (!tagMatch) return {main: null, sub: null}
+  if (!tagMatch) return { main: null, sub: null }
   const [full, main, sub] = tagMatch
-  return {main, sub}
+  return { main, sub }
 }
 
 export const retrieveTag = (tagMeta: TagMeta): string => {
@@ -55,9 +55,16 @@ export const extractTextFromTodoLine = (line: string) =>
 export const getIndentationSpacesFromTodoLine = (line: string) =>
   /^(\s*)([\-\*]|[0-9]+\.)\s\[(.{1})\]\s{1,4}(\S+)/.exec(line)?.[1]?.length ?? 0
 export const todoLineIsChecked = (line: string) =>
-  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(\S{1})\]/.test(line)
+  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[([xX\-])\]/.test(line)
+export const getTodoStatus = (line: string) =>
+  /^(\s|\>)*([\-\*]|[0-9]+\.)\s\[(.{1})\]/.exec(line)?.[3]
 export const getFileLabelFromName = (filename: string) =>
   /^(.+)\.md$/.exec(filename)?.[1]
+
+export const extractTagsFromLine = (line: string): string[] => {
+  const matches = line.match(/#([a-zA-Z0-9_\-\/]+)/g)
+  return matches ? matches : []
+}
 
 export const sortGenericItemsInplace = <
   T,

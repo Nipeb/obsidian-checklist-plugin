@@ -1,12 +1,13 @@
 import MD from 'markdown-it'
 import minimatch from 'minimatch'
 
-import {commentPlugin} from '../plugins/comment'
-import {highlightPlugin} from '../plugins/highlight'
-import {linkPlugin} from '../plugins/link'
-import {tagPlugin} from '../plugins/tag'
+import { commentPlugin } from '../plugins/comment'
+import { highlightPlugin } from '../plugins/highlight'
+import { linkPlugin } from '../plugins/link'
+import { tagPlugin } from '../plugins/tag'
 import {
   combineFileLines,
+  extractTagsFromLine,
   extractTextFromTodoLine,
   getAllLinesFromFile,
   getAllTagsFromMetadata,
@@ -21,6 +22,7 @@ import {
   removeTagFromText,
   setLineTo,
   todoLineIsChecked,
+  getTodoStatus,
 } from './helpers'
 
 import type {
@@ -31,7 +33,7 @@ import type {
   TFile,
   Vault,
 } from 'obsidian'
-import type {TodoItem, TagMeta, FileInfo} from 'src/_types'
+import type { TodoItem, TagMeta, FileInfo } from 'src/_types'
 
 /**
  * Finds all of the {@link TodoItem todos} in the {@link TFile files} that have been updated since the last re-render.
@@ -143,11 +145,18 @@ const findAllTodosInFile = (file: FileInfo): TodoItem[] => {
     : undefined
 
   const todos: TodoItem[] = []
+  let currentHeading: string | undefined = undefined
   for (let i = 0; i < fileLines.length; i++) {
     const line = fileLines[i]
     if (line.length === 0) continue
+    if (line.startsWith('#')) {
+      const match = line.match(/^(#+)\s+(.*)/)
+      if (match) {
+        currentHeading = match[2]
+      }
+    }
     if (lineIsValidTodo(line)) {
-      todos.push(formTodo(line, file, links, i, tagMeta))
+      todos.push(formTodo(line, file, links, i, tagMeta, currentHeading))
     }
   }
 
@@ -168,7 +177,7 @@ const findAllTodosFromTagBlock = (file: FileInfo, tag: TagCache) => {
   const tagMeta = getTagMeta(tag.tag)
   const tagLine = fileLines[tag.position.start.line]
   if (lineIsValidTodo(tagLine)) {
-    return [formTodo(tagLine, file, links, tag.position.start.line, tagMeta)]
+    return [formTodo(tagLine, file, links, tag.position.start.line, tagMeta, undefined)]
   }
 
   const todos: TodoItem[] = []
@@ -177,7 +186,7 @@ const findAllTodosFromTagBlock = (file: FileInfo, tag: TagCache) => {
     if (i === tag.position.start.line + 1 && line.length === 0) continue
     if (line.length === 0) break
     if (lineIsValidTodo(line)) {
-      todos.push(formTodo(line, file, links, i, tagMeta))
+      todos.push(formTodo(line, file, links, i, tagMeta, undefined))
     }
   }
 
@@ -190,10 +199,11 @@ const formTodo = (
   links: LinkCache[],
   lineNum: number,
   tagMeta?: TagMeta,
+  subHeading?: string,
 ): TodoItem => {
   const relevantLinks = links
     .filter(link => link.position.start.line === lineNum)
-    .map(link => ({filePath: link.link, linkName: link.displayText}))
+    .map(link => ({ filePath: link.link, linkName: link.displayText }))
   const linkMap = mapLinkMeta(relevantLinks)
   const rawText = extractTextFromTodoLine(line)
   const spacesIndented = getIndentationSpacesFromTodoLine(line)
@@ -203,10 +213,26 @@ const formTodo = (
     .use(linkPlugin(linkMap))
     .use(tagPlugin)
     .use(highlightPlugin)
+
+  let finalMainTag = tagMeta?.main
+  let finalSubTag = tagMeta?.sub
+
+  if (!finalMainTag) {
+    const extractedTags = extractTagsFromLine(rawText)
+    if (extractedTags.length > 0) {
+      const firstTag = extractedTags[0]
+      const meta = getTagMeta(firstTag)
+      finalMainTag = meta.main
+      finalSubTag = meta.sub
+    }
+  }
+
   return {
-    mainTag: tagMeta?.main,
-    subTag: tagMeta?.sub,
+    mainTag: finalMainTag,
+    subTag: finalSubTag,
+    subHeading,
     checked: todoLineIsChecked(line),
+    status: getTodoStatus(line),
     filePath: file.file.path,
     fileName: file.file.name,
     fileLabel: getFileLabelFromName(file.file.name),
