@@ -1,7 +1,8 @@
-import { Plugin } from 'obsidian'
+import { Plugin, MarkdownView } from 'obsidian'
 
 import { TODO_VIEW_TYPE } from './constants'
 import { DEFAULT_SETTINGS, TodoSettings, TodoSettingTab } from './settings'
+import { todoLineIsChecked } from './utils/helpers'
 import TodoListView from './view'
 
 export default class TodoPlugin extends Plugin {
@@ -49,6 +50,27 @@ export default class TodoPlugin extends Plugin {
       name: 'Refresh List',
       callback: () => {
         this.view.refresh()
+      },
+    })
+    this.addCommand({
+      id: 'delete-completed-tasks',
+      name: 'Delete completed tasks in active file',
+      callback: () => {
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView)
+        if (!view) return
+        const editor = view.editor
+        const cursor = editor.getCursor()
+        const lines = editor.getValue().split('\n')
+        // Filter out lines that are checked todos
+        // We need to keep lines that are NOT (valid todo AND checked)
+        // todoLineIsChecked checks if it matches the pattern of a checked todo
+        const newLines = lines.filter(line => !todoLineIsChecked(line))
+
+        // Only update if changes were made
+        if (lines.length !== newLines.length) {
+          editor.setValue(newLines.join('\n'))
+          editor.setCursor(cursor)
+        }
       },
     })
     this.registerView(TODO_VIEW_TYPE, leaf => {

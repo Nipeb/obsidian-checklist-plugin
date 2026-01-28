@@ -12,7 +12,9 @@
   export let _hiddenTags: string[]
   export let _hiddenGroups: string[]
   export let updateSetting: (updates: Partial<TodoSettings>) => Promise<void>
+
   export let onSearch: (str: string) => void
+  export let onRefresh: () => void
   export let app: App
   export let groupByProperty: string
   export let groupBy: GroupByType
@@ -53,6 +55,7 @@
     hiddenTags={_hiddenTags}
     onTagStatusChange={updateTagStatus}
     {onSearch}
+    {onRefresh}
     {updateSetting}
     {groupBy}
     {subGroupBy}

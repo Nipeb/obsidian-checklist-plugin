@@ -71,7 +71,7 @@ export type GroupByType = 'page' | 'tag' | 'heading' | 'folder' | 'property' | '
 export type SortDirection = 'new->old' | 'old->new' | 'a->z' | 'z->a'
 export type LookAndFeel = 'compact' | 'classic' | 'minimal' | 'native'
 
-export type Icon = 'chevron' | 'settings' | 'eye-off'
+export type Icon = 'chevron' | 'settings' | 'eye-off' | 'refresh-cw'
 
 export type KeysOfType<T, V> = {
   [K in keyof T]: T[K] extends V ? K : never

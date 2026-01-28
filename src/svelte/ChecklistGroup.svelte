@@ -206,8 +206,21 @@
     margin-bottom: 4px; /* Reduce space between groups */
   }
 
-  .native > header {
-    font-size: var(--font-ui-medium); /* Smaller header font */
-    margin-bottom: 2px; /* Reduce space between header and tasks */
+  /* Main Group Header */
+  .native > header:not(.sub-group-header) {
+    font-size: var(--font-ui-medium);
+    margin-bottom: 2px;
+    color: var(--text-normal); /* Lighter main group */
+    font-weight: 600;
+  }
+
+  /* Sub Group Header */
+  .native > header.sub-group-header {
+    color: var(--text-muted); /* Darker subgroup */
+    font-weight: bold;
+    font-size: var(
+      --font-ui-small
+    ); /* Same size as tasks (usually small/fine) */
+    opacity: 1; /* Ensure opacity doesn't fade it too much if set elsewhere */
   }
 </style>

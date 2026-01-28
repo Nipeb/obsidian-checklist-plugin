@@ -9,6 +9,7 @@
   export let disableSearch: boolean
   export let onTagStatusChange: (tag: string, status: boolean) => void
   export let onSearch: (str: string) => void
+  export let onRefresh: () => void
 
   // New props for controlling settings from the header
   export let updateSetting: (updates: Partial<TodoSettings>) => Promise<void>
@@ -32,6 +33,9 @@
     bind:value={search}
     on:input={() => onSearch(search)} />
   <div class="settings-container">
+    <div class="clickable-icon" on:click={onRefresh} title="Refresh List">
+      <Icon name="refresh-cw" />
+    </div>
     <div
       class="clickable-icon"
       on:click={ev => {
@@ -169,6 +173,11 @@
     padding: 4px;
     border-radius: 4px;
   }
+  .clickable-icon :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
   .clickable-icon:hover {
     background-color: var(--background-modifier-hover);
   }

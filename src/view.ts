@@ -117,6 +117,7 @@ export default class TodoListView extends ItemView {
         this.searchTerm = val
         this.refresh()
       },
+      onRefresh: () => this.refresh(true),
     }
   }
 
